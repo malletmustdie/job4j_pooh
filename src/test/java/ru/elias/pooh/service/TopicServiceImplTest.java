@@ -21,14 +21,14 @@ public class TopicServiceImplTest {
         String paramForQueue2 = "temperature=1488";
 
         topicServiceImpl.process(
-                new Request("GET", "topic", "weather", queue1)
+                new Request("PUT", "topic", "weather", queue1)
         );
         topicServiceImpl.process(
                 new Request("POST", "topic", "weather", paramForQueue1)
         );
 
         topicServiceImpl.process(
-                new Request("GET", "topic", "weather", queue2)
+                new Request("PUT", "topic", "weather", queue2)
         );
         topicServiceImpl.process(
                 new Request("POST", "topic", "weather", paramForQueue2)
@@ -49,7 +49,7 @@ public class TopicServiceImplTest {
         TopicServiceImpl topicServiceImpl = new TopicServiceImpl();
         String queue1 = "client1";
         topicServiceImpl.process(
-                new Request("GET", "topic", "weather", queue1)
+                new Request("PUT", "topic", "weather", queue1)
         );
         Response result1 = topicServiceImpl.process(
                 new Request("GET", "topic", "weather", queue1)
@@ -63,12 +63,12 @@ public class TopicServiceImplTest {
         String queue = "client1";
         String incorrectQueue = "client100500";
         topicServiceImpl.process(
-                new Request("GET", "topic", "weather", queue)
+                new Request("PUT", "topic", "weather", queue)
         );
         Response result1 = topicServiceImpl.process(
                 new Request("GET", "topic", "weather", incorrectQueue)
         );
-        Assert.assertThat(result1.text(), Matchers.is("Error, param not found"));
+        Assert.assertThat(result1.text(), Matchers.is("Bad request"));
     }
 
     @Test
@@ -77,12 +77,12 @@ public class TopicServiceImplTest {
         String queue = "client1";
         String incorrectTopicName = "topic100500";
         topicServiceImpl.process(
-                new Request("GET", "topic", "weather", queue)
+                new Request("PUT", "topic", "weather", queue)
         );
         Response result1 = topicServiceImpl.process(
                 new Request("POST", "topic", incorrectTopicName, queue)
         );
-        Assert.assertThat(result1.text(), Matchers.is("Internal server error"));
+        Assert.assertThat(result1.text(), Matchers.is("Error, topic not found"));
     }
 
     @Test
@@ -90,10 +90,10 @@ public class TopicServiceImplTest {
         TopicServiceImpl topicServiceImpl = new TopicServiceImpl();
         String queue = "client1";
         topicServiceImpl.process(
-                new Request("GET", "topic", "weather", queue)
+                new Request("PUT", "topic", "weather", queue)
         );
         Response result = topicServiceImpl.process(
-                new Request("PUT", "topic", "weather", queue)
+                new Request("DELETE", "topic", "weather", queue)
         );
         Assert.assertThat(result.text(), Matchers.is("Internal server error"));
     }

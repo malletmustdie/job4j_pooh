@@ -21,8 +21,8 @@ public class Request {
         var poohMode = requestFirstLine[1].trim();
         var sourceName = requestFirstLine[2].trim().split(" ")[0];
         var param = "POST".equals(requestType) ? request[request.length - 1]
-                : requestFirstLine.length > 3 ? requestFirstLine[3].trim().split(" ")[0]
-                : " ";
+                : requestFirstLine.length > 4 ? requestFirstLine[3].trim().split(" ")[0] : "";
+        System.out.println(param);
         return new Request(requestType, poohMode, sourceName, param);
     }
 

@@ -40,9 +40,10 @@ public class QueueServiceImpl implements Service {
 
     private Response requestMappingGet(Request request) {
         var text = queue.get(request.getSourceName()).poll();
-        return text == null ?
-                new Response(ApiConstants.RESPONSE_MSG_REQUEST_NOT_FOUND, ApiConstants.RESPONSE_STATUS_404) :
-                new Response(text, ApiConstants.RESPONSE_STATUS_200);
+        return text == null
+                ?
+                new Response(ApiConstants.RESPONSE_MSG_REQUEST_PARAM_NOT_FOUND, ApiConstants.RESPONSE_STATUS_404)
+                : new Response(text, ApiConstants.RESPONSE_STATUS_200);
     }
 
 }

@@ -34,12 +34,10 @@ public class PoohServer {
                         var total = input.read(buff);
                         var content = new String(Arrays.copyOfRange(buff, 0, total), StandardCharsets.UTF_8);
                         var req = Request.of(content);
-
                         var resp = modes.get(req.getPoohMode()).process(req);
                         String ls = System.lineSeparator();
-                        out.write(("HTTP/1.1 " + resp.status() + ls).getBytes());
-                        out.write((resp.text().concat(ls)).getBytes());
-                        System.out.println(resp.text());
+                        out.write(("HTTP/1.1 " + resp.status() + " OK" + ls + ls).getBytes());
+                        out.write(resp.text().getBytes());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
