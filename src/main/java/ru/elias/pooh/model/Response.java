@@ -1,11 +1,11 @@
 package ru.elias.pooh.model;
 
-public class Resp {
+public class Response {
 
     private final String text;
     private final String status;
 
-    public Resp(String text, String status) {
+    public Response(String text, String status) {
         this.text = text;
         this.status = status;
     }

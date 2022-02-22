@@ -1,11 +1,10 @@
-package ru.elias.pooh;
+package ru.elias.pooh.model;
 
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
-import ru.elias.pooh.model.Req;
 
-public class ReqTest {
+public class RequestTest {
 
     @Test
     public void whenQueueModePostMethod() {
@@ -18,11 +17,11 @@ public class ReqTest {
                 "Content-Type: application/x-www-form-urlencoded" + ls +
                 "" + ls +
                 "temperature=18" + ls;
-        Req req = Req.of(content);
-        Assert.assertThat(req.httpRequestType(), Matchers.is("POST"));
-        Assert.assertThat(req.getPoohMode(), Matchers.is("queue"));
-        Assert.assertThat(req.getSourceName(), Matchers.is("weather"));
-        Assert.assertThat(req.getParam(), Matchers.is("temperature=18"));
+        Request request = Request.of(content);
+        Assert.assertThat(request.httpRequestType(), Matchers.is("POST"));
+        Assert.assertThat(request.getPoohMode(), Matchers.is("queue"));
+        Assert.assertThat(request.getSourceName(), Matchers.is("weather"));
+        Assert.assertThat(request.getParam(), Matchers.is("temperature=18"));
     }
 
     @Test
@@ -32,11 +31,11 @@ public class ReqTest {
                 + "Host: localhost:9000" + ls
                 + "User-Agent: curl/7.72.0" + ls
                 + "Accept: */*" + ls + ls + ls;
-        Req req = Req.of(content);
-        Assert.assertThat(req.httpRequestType(), Matchers.is("GET"));
-        Assert.assertThat(req.getPoohMode(), Matchers.is("queue"));
-        Assert.assertThat(req.getSourceName(), Matchers.is("weather"));
-        Assert.assertThat(req.getParam(), Matchers.is(""));
+        Request request = Request.of(content);
+        Assert.assertThat(request.httpRequestType(), Matchers.is("GET"));
+        Assert.assertThat(request.getPoohMode(), Matchers.is("queue"));
+        Assert.assertThat(request.getSourceName(), Matchers.is("weather"));
+        Assert.assertThat(request.getParam(), Matchers.is(""));
     }
 
     @Test
@@ -50,11 +49,11 @@ public class ReqTest {
                 "Content-Type: application/x-www-form-urlencoded" + ls +
                 "" + ls +
                 "temperature=18" + ls;
-        Req req = Req.of(content);
-        Assert.assertThat(req.httpRequestType(), Matchers.is("POST"));
-        Assert.assertThat(req.getPoohMode(), Matchers.is("topic"));
-        Assert.assertThat(req.getSourceName(), Matchers.is("weather"));
-        Assert.assertThat(req.getParam(), Matchers.is("temperature=18"));
+        Request request = Request.of(content);
+        Assert.assertThat(request.httpRequestType(), Matchers.is("POST"));
+        Assert.assertThat(request.getPoohMode(), Matchers.is("topic"));
+        Assert.assertThat(request.getSourceName(), Matchers.is("weather"));
+        Assert.assertThat(request.getParam(), Matchers.is("temperature=18"));
     }
 
     @Test
@@ -64,11 +63,11 @@ public class ReqTest {
                 + "Host: localhost:9000" + ls
                 + "User-Agent: curl/7.72.0" + ls
                 + "Accept: */*" + ls + ls + ls;
-        Req req = Req.of(content);
-        Assert.assertThat(req.httpRequestType(), Matchers.is("GET"));
-        Assert.assertThat(req.getPoohMode(), Matchers.is("topic"));
-        Assert.assertThat(req.getSourceName(), Matchers.is("weather"));
-        Assert.assertThat(req.getParam(), Matchers.is("client407"));
+        Request request = Request.of(content);
+        Assert.assertThat(request.httpRequestType(), Matchers.is("GET"));
+        Assert.assertThat(request.getPoohMode(), Matchers.is("topic"));
+        Assert.assertThat(request.getSourceName(), Matchers.is("weather"));
+        Assert.assertThat(request.getParam(), Matchers.is("client407"));
     }
 
 }

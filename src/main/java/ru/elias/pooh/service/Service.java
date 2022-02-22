@@ -1,8 +1,8 @@
 package ru.elias.pooh.service;
 
-import ru.elias.pooh.model.Req;
-import ru.elias.pooh.model.Resp;
+import ru.elias.pooh.model.Request;
+import ru.elias.pooh.model.Response;
 
 public interface Service {
-    Resp process(Req req);
+    Response process(Request request);
 }
