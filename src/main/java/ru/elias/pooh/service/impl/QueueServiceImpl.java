@@ -33,18 +33,9 @@ public class QueueServiceImpl implements Service {
     }
 
     private Response requestMappingPost(Request request) {
-        Response response;
-        if (queue.putIfAbsent(request.getSourceName(), new ConcurrentLinkedQueue<>()) == null) {
-            queue.get(request.getSourceName()).add(request.getParam());
-            response = new Response(
-                    ApiConstants.RESPONSE_MSG_REQUEST_SUCCESS,
-                    ApiConstants.RESPONSE_STATUS_200
-            );
-        } else {
-            queue.get(request.getSourceName()).add(request.getParam());
-            response = new Response(ApiConstants.RESPONSE_MSG_REQUEST_SUCCESS, ApiConstants.RESPONSE_STATUS_200);
-        }
-        return response;
+        queue.putIfAbsent(request.getSourceName(), new ConcurrentLinkedQueue<>());
+        queue.get(request.getSourceName()).add(request.getParam());
+        return new Response(ApiConstants.RESPONSE_MSG_REQUEST_SUCCESS, ApiConstants.RESPONSE_STATUS_200);
     }
 
     private Response requestMappingGet(Request request) {

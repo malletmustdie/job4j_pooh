@@ -5,35 +5,97 @@ import org.junit.Assert;
 import org.junit.Test;
 import ru.elias.pooh.model.Request;
 import ru.elias.pooh.model.Response;
+import ru.elias.pooh.service.impl.QueueServiceImpl;
 import ru.elias.pooh.service.impl.TopicServiceImpl;
 
 public class TopicServiceImplTest {
 
     @Test
-    public void whenTopic() {
+    public void whenCreateTwoTopicThenGetTwoParameters() {
         TopicServiceImpl topicServiceImpl = new TopicServiceImpl();
-        String paramForPublisher = "temperature=18";
-        String paramForSubscriber1 = "client407";
-        String paramForSubscriber2 = "client6565";
-        /* Режим topic. Подписываемся на топик weather. client407. */
+
+        String queue1 = "client1";
+        String queue2 = "client2";
+
+        String paramForQueue1 = "temperature=18";
+        String paramForQueue2 = "temperature=1488";
+
         topicServiceImpl.process(
-                new Request("GET", "topic", "weather", paramForSubscriber1)
+                new Request("GET", "topic", "weather", queue1)
         );
-        /* Режим topic. Добавляем данные в топик weather. */
         topicServiceImpl.process(
-                new Request("POST", "topic", "weather", paramForPublisher)
+                new Request("POST", "topic", "weather", paramForQueue1)
         );
-        /* Режим topic. Забираем данные из индивидуальной очереди в топике weather. Очередь client407. */
+
+        topicServiceImpl.process(
+                new Request("GET", "topic", "weather", queue2)
+        );
+        topicServiceImpl.process(
+                new Request("POST", "topic", "weather", paramForQueue2)
+        );
+
         Response result1 = topicServiceImpl.process(
-                new Request("GET", "topic", "weather", paramForSubscriber1)
+                new Request("GET", "topic", "weather", queue1)
         );
-        /* Режим topic. Забираем данные из индивидуальной очереди в топике weather. Очередь client6565.
-        Очередь отсутствует, т.к. еще не был подписан - получит пустую строку */
         Response result2 = topicServiceImpl.process(
-                new Request("GET", "topic", "weather", paramForSubscriber2)
+                new Request("GET", "topic", "weather", queue2)
         );
         Assert.assertThat(result1.text(), Matchers.is("temperature=18"));
-        Assert.assertThat(result2.text(), Matchers.is(""));
+        Assert.assertThat(result2.text(), Matchers.is("temperature=1488"));
+    }
+
+    @Test
+    public void whenCreateTopicWithEmptyQueueThenGet404() {
+        TopicServiceImpl topicServiceImpl = new TopicServiceImpl();
+        String queue1 = "client1";
+        topicServiceImpl.process(
+                new Request("GET", "topic", "weather", queue1)
+        );
+        Response result1 = topicServiceImpl.process(
+                new Request("GET", "topic", "weather", queue1)
+        );
+        Assert.assertThat(result1.text(), Matchers.is("Error, param not found"));
+    }
+
+    @Test
+    public void whenCreateTopicWithAndGetWithIncorrectQueueNameThenGet404() {
+        TopicServiceImpl topicServiceImpl = new TopicServiceImpl();
+        String queue = "client1";
+        String incorrectQueue = "client100500";
+        topicServiceImpl.process(
+                new Request("GET", "topic", "weather", queue)
+        );
+        Response result1 = topicServiceImpl.process(
+                new Request("GET", "topic", "weather", incorrectQueue)
+        );
+        Assert.assertThat(result1.text(), Matchers.is("Error, param not found"));
+    }
+
+    @Test
+    public void whenCreateTopicWithAndPostMsgWithIncorrectSourceNameThenGet404() {
+        TopicServiceImpl topicServiceImpl = new TopicServiceImpl();
+        String queue = "client1";
+        String incorrectTopicName = "topic100500";
+        topicServiceImpl.process(
+                new Request("GET", "topic", "weather", queue)
+        );
+        Response result1 = topicServiceImpl.process(
+                new Request("POST", "topic", incorrectTopicName, queue)
+        );
+        Assert.assertThat(result1.text(), Matchers.is("Internal server error"));
+    }
+
+    @Test
+    public void whenSendIncorrectMsgThenGet500() {
+        TopicServiceImpl topicServiceImpl = new TopicServiceImpl();
+        String queue = "client1";
+        topicServiceImpl.process(
+                new Request("GET", "topic", "weather", queue)
+        );
+        Response result = topicServiceImpl.process(
+                new Request("PUT", "topic", "weather", queue)
+        );
+        Assert.assertThat(result.text(), Matchers.is("Internal server error"));
     }
 
 }
