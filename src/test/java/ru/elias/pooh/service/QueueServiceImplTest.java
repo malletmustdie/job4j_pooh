@@ -14,10 +14,10 @@ public class QueueServiceImplTest {
         QueueServiceImpl queueServiceImpl = new QueueServiceImpl();
         String paramForPostMethod = "temperature=18";
         queueServiceImpl.process(
-                new Request("POST", "queue", "weather", paramForPostMethod)
+                new Request("POST", "queue", "weather", paramForPostMethod, "1")
         );
         Response result = queueServiceImpl.process(
-                new Request("GET", "queue", "weather", null)
+                new Request("GET", "queue", "weather", null, "1")
         );
         Assert.assertThat(result.text(), Matchers.is("temperature=18"));
     }
@@ -28,18 +28,18 @@ public class QueueServiceImplTest {
         String paramForPostMethod = "temperature=18";
         String paramForPostMethod1 = "temperature=1488";
         queueServiceImpl.process(
-                new Request("POST", "queue", "weather", paramForPostMethod)
+                new Request("POST", "queue", "weather", paramForPostMethod, "1")
         );
         queueServiceImpl.process(
-                new Request("POST", "queue", "weather", paramForPostMethod1)
+                new Request("POST", "queue", "weather", paramForPostMethod1, "1")
         );
         Response result = queueServiceImpl.process(
-                new Request("GET", "queue", "weather", null)
+                new Request("GET", "queue", "weather", null, "1")
         );
         Assert.assertThat(result.text(), Matchers.is("temperature=18"));
 
         Response result1 = queueServiceImpl.process(
-                new Request("GET", "queue", "weather", null)
+                new Request("GET", "queue", "weather", null, "1")
         );
         Assert.assertThat(result1.text(), Matchers.is("temperature=1488"));
     }
@@ -49,11 +49,11 @@ public class QueueServiceImplTest {
         QueueServiceImpl queueServiceImpl = new QueueServiceImpl();
         String paramForPostMethod = "temperature=18";
         queueServiceImpl.process(
-                new Request("POST", "queue", "weather", paramForPostMethod)
+                new Request("POST", "queue", "weather", paramForPostMethod, "1")
         );
-        queueServiceImpl.process(new Request("GET", "queue", "weather", null));
+        queueServiceImpl.process(new Request("GET", "queue", "weather", null, "1"));
         Response result = queueServiceImpl.process(
-                new Request("GET", "queue", "weather", null)
+                new Request("GET", "queue", "weather", null, "1")
         );
         Assert.assertThat(result.text(), Matchers.is("Error, param not found"));
     }
@@ -63,7 +63,7 @@ public class QueueServiceImplTest {
         QueueServiceImpl queueServiceImpl = new QueueServiceImpl();
         String paramForPostMethod = "temperature=18";
         Response result = queueServiceImpl.process(
-                new Request("PUT", "queue", "weather", paramForPostMethod)
+                new Request("PUT", "queue", "weather", paramForPostMethod, "1")
         );
         Assert.assertThat(result.text(), Matchers.is("Internal server error"));
     }

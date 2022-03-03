@@ -14,22 +14,14 @@ public class QueueServiceImpl implements Service {
 
     @Override
     public Response process(Request request) {
-        Response response;
-        switch (request.httpRequestType()) {
-            case ApiConstants.GET_METHOD:
-                response = requestMappingGet(request);
-                break;
-            case ApiConstants.POST_METHOD:
-                response = requestMappingPost(request);
-                break;
-            default:
-                response = new Response(
-                        ApiConstants.RESPONSE_MSG_REQUEST_INTERNAL_SERVER_ERROR,
-                        ApiConstants.RESPONSE_STATUS_500
-                );
-                break;
-        }
-        return response;
+        return switch (request.httpRequestType()) {
+            case ApiConstants.GET_METHOD -> requestMappingGet(request);
+            case ApiConstants.POST_METHOD -> requestMappingPost(request);
+            default -> new Response(
+                    ApiConstants.RESPONSE_MSG_REQUEST_INTERNAL_SERVER_ERROR,
+                    ApiConstants.RESPONSE_STATUS_500
+            );
+        };
     }
 
     private Response requestMappingPost(Request request) {

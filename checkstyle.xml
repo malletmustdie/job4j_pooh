@@ -18,6 +18,11 @@
     <!--   <property name="fileExtensions" value="java"/> -->
     <!-- </module> -->
 
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern"
+                  value=".*[\\/]src[\\/]main[\\/].*$"/>
+    </module>
+
     <module name="TreeWalker">
 
         <!-- Checks for Naming Conventions.                  -->
