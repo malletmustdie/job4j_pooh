@@ -32,10 +32,8 @@ public class Request {
         var param = "POST".equals(requestType) ? request[request.length - 1]
                 : requestFirstLine.length > 4 ? requestFirstLine[3].trim().split(" ")[0] : "";
 
-        String id = null;
-        if ("POST".equals(requestType) && "topic".equals(poohMode)) {
-            id = String.valueOf(count.incrementAndGet());
-        }
+        String id = "POST".equals(requestType) && "topic".equals(poohMode) ? String.valueOf(count.incrementAndGet())
+                                                                           : param;
         return new Request(requestType, poohMode, sourceName, param, id);
     }
 
