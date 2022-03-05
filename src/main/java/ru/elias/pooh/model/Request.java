@@ -1,24 +1,19 @@
 package ru.elias.pooh.model;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Request {
-
-    private static final AtomicInteger count = new AtomicInteger(0);
 
     private final String httpRequestType;
     private final String poohMode;
     private final String sourceName;
     private final String param;
-    private final String id;
 
-    public Request(String httpRequestType, String poohMode, String sourceName, String param, String id) {
+    public Request(String httpRequestType, String poohMode, String sourceName, String param) {
         this.httpRequestType = httpRequestType;
         this.poohMode = poohMode;
         this.sourceName = sourceName;
         this.param = param;
-        this.id = id;
     }
 
     public static Request of(String content) {
@@ -31,10 +26,7 @@ public class Request {
         var sourceName = requestFirstLine[2].trim().split(" ")[0];
         var param = "POST".equals(requestType) ? request[request.length - 1]
                 : requestFirstLine.length > 4 ? requestFirstLine[3].trim().split(" ")[0] : "";
-
-        String id = "POST".equals(requestType) && "topic".equals(poohMode) ? String.valueOf(count.incrementAndGet())
-                                                                           : param;
-        return new Request(requestType, poohMode, sourceName, param, id);
+        return new Request(requestType, poohMode, sourceName, param);
     }
 
     public String httpRequestType() {
@@ -51,10 +43,6 @@ public class Request {
 
     public String getParam() {
         return param;
-    }
-
-    public String getId() {
-        return id;
     }
 
 }

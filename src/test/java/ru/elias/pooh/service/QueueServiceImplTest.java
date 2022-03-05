@@ -6,66 +6,58 @@ import org.junit.Test;
 import ru.elias.pooh.model.Request;
 import ru.elias.pooh.model.Response;
 import ru.elias.pooh.service.impl.QueueServiceImpl;
+import ru.elias.pooh.util.ApiConstants;
 
 public class QueueServiceImplTest {
 
     @Test
     public void whenPostOneMsgInQueueThenGetOneParameter() {
         QueueServiceImpl queueServiceImpl = new QueueServiceImpl();
-        String paramForPostMethod = "temperature=18";
+        String paramForPostMethod = "param=value";
         queueServiceImpl.process(
-                new Request("POST", "queue", "weather", paramForPostMethod, "1")
+                new Request("POST", "queue", "weather", paramForPostMethod)
         );
         Response result = queueServiceImpl.process(
-                new Request("GET", "queue", "weather", null, "1")
+                new Request("GET", "queue", "weather", null)
         );
-        Assert.assertThat(result.text(), Matchers.is("temperature=18"));
+        Assert.assertThat(result.text(), Matchers.is("param=value"));
     }
 
     @Test
     public void whenPostTwoMsgInQueueThenGetTwoParameter() {
         QueueServiceImpl queueServiceImpl = new QueueServiceImpl();
-        String paramForPostMethod = "temperature=18";
-        String paramForPostMethod1 = "temperature=1488";
+        String paramForPostMethod = "param=value";
+        String paramForPostMethod1 = "param=value-1";
         queueServiceImpl.process(
-                new Request("POST", "queue", "weather", paramForPostMethod, "1")
+                new Request("POST", "queue", "weather", paramForPostMethod)
         );
         queueServiceImpl.process(
-                new Request("POST", "queue", "weather", paramForPostMethod1, "1")
+                new Request("POST", "queue", "weather", paramForPostMethod1)
         );
         Response result = queueServiceImpl.process(
-                new Request("GET", "queue", "weather", null, "1")
+                new Request("GET", "queue", "weather", null)
         );
-        Assert.assertThat(result.text(), Matchers.is("temperature=18"));
+        Assert.assertThat(result.text(), Matchers.is("param=value"));
 
         Response result1 = queueServiceImpl.process(
-                new Request("GET", "queue", "weather", null, "1")
+                new Request("GET", "queue", "weather", null)
         );
-        Assert.assertThat(result1.text(), Matchers.is("temperature=1488"));
+        Assert.assertThat(result1.text(), Matchers.is("param=value-1"));
     }
 
+
     @Test
-    public void whenSendIncorrectMsgThenGet404() {
+    public void whenSendIncorrectMsgThenGetError() {
         QueueServiceImpl queueServiceImpl = new QueueServiceImpl();
-        String paramForPostMethod = "temperature=18";
+        String paramForPostMethod = "param=value";
+        String incorrectSourceName = "some-name";
         queueServiceImpl.process(
-                new Request("POST", "queue", "weather", paramForPostMethod, "1")
+                new Request("POST", "queue", "weather", paramForPostMethod)
         );
-        queueServiceImpl.process(new Request("GET", "queue", "weather", null, "1"));
         Response result = queueServiceImpl.process(
-                new Request("GET", "queue", "weather", null, "1")
+                new Request("GET", "queue", incorrectSourceName, null)
         );
-        Assert.assertThat(result.text(), Matchers.is("Error, param not found"));
-    }
-
-    @Test
-    public void whenSendIncorrectMsgThenGet500() {
-        QueueServiceImpl queueServiceImpl = new QueueServiceImpl();
-        String paramForPostMethod = "temperature=18";
-        Response result = queueServiceImpl.process(
-                new Request("PUT", "queue", "weather", paramForPostMethod, "1")
-        );
-        Assert.assertThat(result.text(), Matchers.is("Internal server error"));
+        Assert.assertThat(result.text(), Matchers.is(ApiConstants.ERROR));
     }
 
 }

@@ -8,11 +8,12 @@ import ru.elias.pooh.util.ApiConstants;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopicServiceImpl implements Service {
 
-    private final ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentLinkedQueue<String>>> topics
+    private final ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> tempQueue = new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentLinkedQueue<String>>> topic
             = new ConcurrentHashMap<>();
 
     /**
@@ -28,48 +29,39 @@ public class TopicServiceImpl implements Service {
      */
     @Override
     public Response process(Request request) {
-        return switch (request.httpRequestType()) {
-            case ApiConstants.GET_METHOD -> requestMappingGet(request);
-            case ApiConstants.POST_METHOD -> requestMappingPost(request);
-            default -> new Response(
-                    ApiConstants.RESPONSE_MSG_REQUEST_INTERNAL_SERVER_ERROR,
-                    ApiConstants.RESPONSE_STATUS_500
-            );
-        };
-    }
-
-    private Response requestMappingPost(Request request) {
-        Response response;
-        topics.putIfAbsent(request.getSourceName(), new ConcurrentHashMap<>());
-        topics.get(request.getSourceName())
-              .putIfAbsent(String.valueOf(request.getId()), new ConcurrentLinkedQueue<>());
-        var topic = topics.get(request.getSourceName());
-        if (topic == null) {
-            response = new Response(
-                    ApiConstants.RESPONSE_MSG_REQUEST_TOPIC_NOT_FOUND,
-                    ApiConstants.RESPONSE_STATUS_404
-            );
-        } else {
-            topic.values().forEach(queue -> queue.offer(request.getParam()));
-            response = new Response(
-                    ApiConstants.RESPONSE_MSG_REQUEST_SUCCESS,
-                    ApiConstants.RESPONSE_STATUS_200
-            );
+        Response response = new Response(ApiConstants.ERROR, ApiConstants.RESPONSE_STATUS_500);
+        tempQueue.putIfAbsent(request.getSourceName(), new ConcurrentLinkedQueue<>());
+        topic.putIfAbsent(request.getSourceName(), new ConcurrentHashMap<>());
+        switch (request.httpRequestType()) {
+            case ApiConstants.POST_METHOD -> response = requestMappingPost(request);
+            case ApiConstants.GET_METHOD -> response = requestMappingGet(request, response);
         }
         return response;
     }
 
-    private Response requestMappingGet(Request request) {
-        topics.putIfAbsent(request.getSourceName(), new ConcurrentHashMap<>());
-        var topic = topics.get(request.getSourceName());
-        if (topic.get(request.getParam()) == null) {
-            return new Response(ApiConstants.RESPONSE_MSG_BAD_REQUEST, ApiConstants.RESPONSE_STATUS_400);
-        }
-        var text = Optional.ofNullable(topic.get(request.getParam()).poll()).orElse("");
-        return text.isEmpty()
-               ?
-               new Response(ApiConstants.RESPONSE_MSG_REQUEST_PARAM_NOT_FOUND, ApiConstants.RESPONSE_STATUS_404)
-               : new Response(text, ApiConstants.RESPONSE_STATUS_200);
+    private Response requestMappingPost(Request request) {
+        tempQueue.get(request.getSourceName()).add(request.getParam());
+        topic.get(request.getSourceName())
+             .putIfAbsent(
+                     request.getParam(),
+                     new ConcurrentLinkedQueue<>(tempQueue.get(request.getSourceName()))
+             );
+        return new Response(request.getParam(), ApiConstants.RESPONSE_STATUS_200);
+    }
+
+    private Response requestMappingGet(Request request, Response response) {
+        topic.get(request.getSourceName())
+             .putIfAbsent(
+                     request.getParam(),
+                     new ConcurrentLinkedQueue<>(tempQueue.get(request.getSourceName()))
+             );
+        String text =
+                Optional.ofNullable(
+                        topic.get(request.getSourceName()).get(request.getParam()).poll()
+                ).orElse("");
+        return text.isEmpty() ? response
+                              : new Response(text, ApiConstants.RESPONSE_STATUS_200);
+
     }
 
 }
